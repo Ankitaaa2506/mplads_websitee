@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CivicLens AI - Risk Assessment Center</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <style>
+   
+
+    :root {
+      --bg-main: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --brand-blue: #2563EB;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Navigation Header */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 16px 24px;
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+    }
+
+    .page-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title h1 {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .page-title p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Search Bar with Active AI Spinner Indicator */
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input-box {
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      padding: 14px 48px 14px 44px;
+      border-radius: 14px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s ease;
+    }
+
+    .search-input-box:focus {
+      border-color: var(--brand-blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      width: 18px;
+    }
+
+    /* AI Searching Spinner */
+    .search-spinner {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      border: 2px solid #CBD5E1;
+      border-top-color: var(--brand-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin {
+      to { transform: translateY(-50%) rotate(360deg); }
+    }
+
+    /* Main Grid Layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    }
+
+    /* Project Info */
+    .project-header-badge {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: #475569;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .project-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
+
+    .project-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .funds-row {
+      display: flex;
+      gap: 24px;
+      margin: 18px 0;
+      padding: 14px;
+      background: #F8FAFC;
+      border-radius: 12px;
+    }
+
+    .fund-item p { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); }
+    .fund-item h3 { font-size: 1.1rem; font-weight: 800; margin-top: 2px; }
+
+    /* Gauge Ring */
+    .gauge-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 0;
+    }
+
+    .gauge-svg {
+      width: 180px;
+      height: 180px;
+    }
+
+    .gauge-bg {
+      fill: none;
+      stroke: #E2E8F0;
+      stroke-width: 12;
+    }
+
+    .gauge-progress {
+      fill: none;
+      stroke-width: 12;
+      stroke-linecap: round;
+      stroke-dasharray: 390;
+      stroke-dashoffset: 100;
+      transition: all 0.8s ease-in-out;
+    }
+
+    .gauge-text-box {
+      position: absolute;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .gauge-score {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .gauge-sub {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .status-pill {
+      margin-top: 10px;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    /* Right Section: Factors */
+    .section-heading {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .factor-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .factor-card {
+      position: relative;
+      background: #FFFFFF;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+
+    .factor-card:hover {
+      border-color: #CBD5E1;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+    }
+
+    .factor-left {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .factor-icon-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .factor-title { font-size: 0.88rem; font-weight: 700; color: var(--text-main); }
+    .factor-desc { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+    .severity-badge {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      letter-spacing: 0.4px;
+    }
+
+    /* Interactive Hover Tooltip (Alert Explanation) */
+    .hover-tooltip {
+      position: absolute;
+      bottom: 105%;
+      left: 50%;
+      transform: translateX(-50%) translateY(10px);
+      width: 320px;
+      background: #0F172A;
+      color: #FFFFFF;
+      padding: 12px 14px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+    }
+
+    .hover-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: #0F172A transparent transparent transparent;
+    }
+
+    .factor-card:hover .hover-tooltip {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .tooltip-header { font-weight: 800; color: #38BDF8; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .tooltip-body { color: #94A3B8; line-height: 1.35; }
+
+    /* Dimensional Bars */
+    .dim-section {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .dim-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .dim-meta { display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 700; }
+    .dim-track { height: 8px; background: #F1F5F9; border-radius: 10px; overflow: hidden; }
+    .dim-fill { height: 100%; border-radius: 10px; transition: width 0.6s ease; }
+
+    /* Action Buttons */
+    .action-row {
+      display: flex;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .btn-primary {
+      flex: 1;
+      background: #0F172A;
+      color: #FFFFFF;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background: #FEF2F2;
+      color: #DC2626;
+      border: 1px solid #FECACA;
+      padding: 12px 18px;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="container">
+
+    <header class="top-bar">
+      <div class="page-title">
+        <i data-feather="shield" style="color: var(--brand-blue)"></i>
+        <div>
+          <h1>AIRisks Center</h1>
+          <p>AI-powered project fraud & risk assessment</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="search-wrapper">
+      <i data-feather="search" class="search-icon"></i>
+      <input type="text" id="searchInput" class="search-input-box" value="Road Development – Ward 12" placeholder="Search project title or ID..." oninput="handleSearch()">
+      <div id="searchSpinner" class="search-spinner"></div>
+    </div>
+
+    <main class="dashboard-grid">
+
+      <section class="card">
+        <span id="categoryBadge" class="project-header-badge">CIVIL INFRASTRUCTURE</span>
+        <h2 id="projTitle" class="project-title">Loading...</h2>
+        <p id="projSub" class="project-sub">Loading location...</p>
+
+        <div class="funds-row">
+          <div class="fund-item">
+            <p>SANCTIONED</p>
+            <h3 id="sanctionedAmt">₹0 Lakh</h3>
+          </div>
+          <div class="fund-item">
+            <p>EXPENDITURE</p>
+            <h3 id="expenditureAmt">₹0 Lakh</h3>
+          </div>
+        </div>
+
+        <div class="gauge-wrapper">
+          <svg class="gauge-svg" viewBox="0 0 160 160">
+            <circle class="gauge-bg" cx="80" cy="80" r="62"></circle>
+            <circle id="gaugeCircle" class="gauge-progress" cx="80" cy="80" r="62" transform="rotate(-90 80 80)"></circle>
+          </svg>
+          <div class="gauge-text-box">
+            <div id="gaugeScore" class="gauge-score">0</div>
+            <div class="gauge-sub">OUT OF 100</div>
+          </div>
+          <span id="riskBadge" class="status-pill">ASSESSING...</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="section-heading">
+          <span id="factorHeading">Project Assessment Factors</span>
+          <span id="flagCount" style="font-size: 0.75rem; color: var(--text-muted);">0 Signals</span>
+        </div>
+
+        <div id="factorList" class="factor-list"></div>
+
+        <div class="dim-section">
+          <div class="section-heading" style="margin-bottom: 10px;">Dimensional Breakdown</div>
+          <div id="dimBreakdown"></div>
+        </div>
+
+        <div class="action-row">
+          <a href="viewriskk.html" class="btn-primary">
+            <span>View Detailed AI Findings</span>
+            <i data-feather="arrow-right" style="width: 16px;"></i>
+          </a>
+          <button class="btn-secondary">Flag Project</button>
+        </div>
+      </section>
+
+    </main>
+
+  </div>
+
+  <script>
+    /* ========================================================
+       BACKEND DATA ENGINE
+       (Yeh structure API JSON response ko emulate karti hai)
+       ======================================================== */
+    const projectsDatabase = [
+      {
+        id: "MPLADS-2025-01842",
+        title: "Road Development – Ward 12",
+        category: "CIVIL INFRASTRUCTURE",
+        location: "Ward 12, South District",
+        sanctioned: "₹48.5 Lakh",
+        expenditure: "₹31.2 Lakh",
+        riskScore: 78, // High score = Risky
+        headingText: "Why is this project risky?",
+        flagsCountText: "5 Flags Identified",
+        factors: [
+          {
+            title: "Unusual Expenditure Pattern",
+            desc: "Spending increased sharply during final execution period without physical verification.",
+            severity: "HIGH",
+            type: "high",
+            icon: "trending-up",
+            tooltip: "AI Audit Alert: ₹18.4L disbursed in 5 days without secondary engineer sign-off."
+          },
+          {
+            title: "Vendor Concentration Risk",
+            desc: "A large share of expenditure is associated with a single unverified agency.",
+            severity: "MED",
+            type: "med",
+            icon: "pie-chart",
+            tooltip: "Vendor Probe: Apex Builders awarded 4 consecutive contracts in Ward 12."
+          },
+          {
+            title: "Delayed Project Progress",
+            desc: "Reported physical progress is 28% lower than expected for funds disbursed.",
+            severity: "HIGH",
+            type: "high",
+            icon: "clock",
+            tooltip: "Physical Audit: Ground progress stands at 57% vs target 85%."
+          },
+          {
+            title: "Repeated Transaction Pattern",
+            desc: "Multiple debit invoices show identical tranche disbursements across consecutive days.",
+            severity: "MED",
+            type: "med",
+            icon: "repeat",
+            tooltip: "Bank Sync: 3 tranches of ₹4.5L debited with matching timestamps."
+          },
+          {
+            title: "Documentation Gap",
+            desc: "Physical completion geo-tagged certificate is missing secondary sign-off.",
+            severity: "LOW",
+            type: "low",
+            icon: "file-text",
+            tooltip: "Doc Vault: GIS photo upload verification pending from district officer."
+          }
+        ],
+        dimensions: [
+          { label: "Financial Risk", score: 82, color: "#EF4444" },
+          { label: "Execution Risk", score: 76, color: "#EF4444" },
+          { label: "Vendor Risk", score: 64, color: "#F59E0B" },
+          { label: "Documentation Risk", score: 51, color: "#10B981" }
+        ]
+      },
+      {
+        id: "MPLADS-2025-09921",
+        title: "Community Solar Lighting - Ward 4",
+        category: "RENEWABLE ENERGY",
+        location: "Ward 4, North District",
+        sanctioned: "₹25.0 Lakh",
+        expenditure: "₹24.8 Lakh",
+        riskScore: 14, // Low score = Safe / Clean
+        headingText: "Compliance & Safety Audit",
+        flagsCountText: "All Audit Checks Passed",
+        factors: [
+          {
+            title: "Verified Disbursement Stream",
+            desc: "All tranches released after third-party physical inspection approval.",
+            severity: "SAFE",
+            type: "safe",
+            icon: "check-circle",
+            tooltip: "Verified: 100% geo-tagged photos matched with physical site audit."
+          },
+          {
+            title: "Open Competitive Tendering",
+            desc: "Contract allocated through transparent state e-Procurement portal.",
+            severity: "SAFE",
+            type: "safe",
+            icon: "shield-check",
+            tooltip: "Tender Clearance: 6 qualified vendors participated in standard bidding."
+          },
+          {
+            title: "On-Schedule Completion",
+            desc: "Solar grid installation completed 12 days ahead of target timeline.",
+            severity: "SAFE",
+            type: "safe",
+            icon: "calendar",
+            tooltip: "Timeline Status: Field operations signed off by District Magistrate."
+          }
+        ],
+        dimensions: [
+          { label: "Financial Risk", score: 14, color: "#10B981" },
+          { label: "Execution Risk", score: 10, color: "#10B981" },
+          { label: "Vendor Risk", score: 8, color: "#10B981" },
+          { label: "Documentation Risk", score: 5, color: "#10B981" }
+        ]
+      }
+    ];
+
+    /* ========================================================
+       RENDER ENGINE: Updates UI dynamically based on Data
+       ======================================================== */
+    function renderProjectData(project) {
+      // 1. Text & Header Info
+      document.getElementById('categoryBadge').innerText = project.category;
+      document.getElementById('projTitle').innerText = project.title;
+      document.getElementById('projSub').innerText = `${project.location} • ID: ${project.id}`;
+      document.getElementById('sanctionedAmt').innerText = project.sanctioned;
+      document.getElementById('expenditureAmt').innerText = project.expenditure;
+
+      // 2. Score, Colors & Gauge Ring Calculation
+      const score = project.riskScore;
+      const scoreElement = document.getElementById('gaugeScore');
+      const badgeElement = document.getElementById('riskBadge');
+      const gaugeCircle = document.getElementById('gaugeCircle');
+      const expenditureAmt = document.getElementById('expenditureAmt');
+
+      scoreElement.innerText = score;
+
+      // Dynamic Color Selection based on Backend Risk Score
+      let mainColor, badgeBg, badgeText, statusText;
+
+      if (score >= 70) {
+        mainColor = "#EF4444"; // Red for High Risk
+        badgeBg = "#FEF2F2";
+        badgeText = "#DC2626";
+        statusText = "HIGH RISK PROJECT";
+      } else if (score >= 40) {
+        mainColor = "#F59E0B"; // Yellow/Amber for Medium Risk
+        badgeBg = "#FEF3C7";
+        badgeText = "#D97706";
+        statusText = "MEDIUM RISK PROJECT";
+      } else {
+        mainColor = "#10B981"; // Green for Safe Project
+        badgeBg = "#ECFDF5";
+        badgeText = "#059669";
+        statusText = "LOW RISK / SAFE";
+      }
+
+      // Apply Colors
+      scoreElement.style.color = mainColor;
+      expenditureAmt.style.color = mainColor;
+      gaugeCircle.style.stroke = mainColor;
+
+      // Calculate Ring Offset (390 total dasharray)
+      const offset = 390 - (390 * score) / 100;
+      gaugeCircle.style.strokeDashoffset = offset;
+
+      badgeElement.innerText = statusText;
+      badgeElement.style.background = badgeBg;
+      badgeElement.style.color = badgeText;
+      badgeElement.style.border = `1px solid ${badgeText}33`;
+
+      // 3. Render Risk Factors
+      document.getElementById('factorHeading').innerText = project.headingText;
+      document.getElementById('flagCount').innerText = project.flagsCountText;
+
+      const factorList = document.getElementById('factorList');
+      factorList.innerHTML = '';
+
+      project.factors.forEach(f => {
+        let iconBg, iconColor;
+        if (f.type === 'high') { iconBg = '#FEF2F2'; iconColor = '#DC2626'; }
+        else if (f.type === 'med') { iconBg = '#FEF3C7'; iconColor = '#D97706'; }
+        else { iconBg = '#ECFDF5'; iconColor = '#059669'; }
+
+        factorList.innerHTML += `
+          <div class="factor-card">
+            <div class="hover-tooltip">
+              <div class="tooltip-header"><i data-feather="cpu" style="width:12px;"></i> AI Audit Data</div>
+              <div class="tooltip-body">${f.tooltip}</div>
+            </div>
+            <div class="factor-left">
+              <div class="factor-icon-box" style="background: ${iconBg}; color: ${iconColor};">
+                <i data-feather="${f.icon}"></i>
+              </div>
+              <div>
+                <h4 class="factor-title">${f.title}</h4>
+                <p class="factor-desc">${f.desc}</p>
+              </div>
+            </div>
+            <span class="severity-badge" style="background: ${iconBg}; color: ${iconColor};">${f.severity}</span>
+          </div>
+        `;
+      });
+
+      // 4. Render Dimensional Breakdown Bars
+      const dimBreakdown = document.getElementById('dimBreakdown');
+      dimBreakdown.innerHTML = '';
+
+      project.dimensions.forEach(d => {
+        dimBreakdown.innerHTML += `
+          <div class="dim-row">
+            <div class="dim-meta">
+              <span>${d.label}</span>
+              <span style="color: ${d.label}</span>
+              <span style="color: ${d.color}">${d.score}%</span>
+            </div>
+            <div class="dim-track">
+              <div class="dim-fill" style="width: ${d.score}%; background: ${d.color};"></div>
+            </div>
+          </div>
+        `;
+      });
+
+      if (window.feather) { feather.replace(); }
+    }
+
+    /* ========================================================
+       SEARCH & BACKEND SEARCH SIMULATION
+       ======================================================== */
+    let searchTimeout;
+    function handleSearch() {
+      const spinner = document.getElementById('searchSpinner');
+      const inputVal = document.getElementById('searchInput').value.toLowerCase();
+      spinner.style.display = 'block';
+
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        spinner.style.display = 'none';
+
+        // Match Project from Database Array
+        const matchedProject = projectsDatabase.find(p => 
+          p.title.toLowerCase().includes(inputVal) || 
+          p.id.toLowerCase().includes(inputVal)
+        );
+
+        if (matchedProject) {
+          renderProjectData(matchedProject);
+        } else {
+          // Fallback to Safe Project if query includes 'safe' or unknown
+          renderProjectData(projectsDatabase[1]);
+        }
+      }, 500);
+    }
+
+    // Initial Load (Loads First Project Data)
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProjectData(projectsDatabase[0]);
+    });
+    // Back button behavior
+
+  </script>
+
+</body>
+</html>
