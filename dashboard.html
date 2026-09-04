@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MPLADS Monitoring Dashboard</title>
+  
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/feather-icons"></script>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Collapsible Left Navigation Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-top">
+        <div class="brand">
+          <div class="brand-logo">C</div>
+          <div class="brand-info">
+            <h2>CivicLens AI</h2>
+            <p>MPLADS Portal</p>
+          </div>
+        </div>
+
+        <nav class="nav-menu">
+          <a href="index.html" class="nav-link active"><i data-feather="home"></i> <span>Home</span></a>
+          <a href="airisk.html" class="nav-link"><i data-feather="cpu"></i> <span>AI Risk Center</span></a>
+          <a href="projects.html" class="nav-link"><i data-feather="grid"></i> <span>Projects</span></a>
+          <a href="maps.html" class="nav-link"><i data-feather="map"></i> <span>Explore States</span></a>
+          <a href="mps.html" class="nav-link"><i data-feather="users"></i> <span>MPs</span></a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+      <!-- Header Section with Hamburger Toggle -->
+      <header class="header">
+        <div class="header-left">
+          <button class="toggle-btn" id="toggleBtn" title="Toggle Sidebar">
+            <i data-feather="menu"></i>
+          </button>
+          <div class="header-text">
+            <h1>MPLADS Monitoring Dashboard</h1>
+            <p>Track government funds, development projects and AI-powered risk insights.</p>
+          </div>
+        </div>
+
+        <div class="filters">
+          <select class="dropdown">
+            <option>Both Houses (LS & RS)</option>
+            <option>Lok Sabha</option>
+            <option>Rajya Sabha</option>
+          </select>
+          <select class="dropdown">
+            <option>FY 2025–26</option>
+            <option>FY 2024–25</option>
+          </select>
+        </div>
+      </header>
+
+      <!-- Top Row: AI Banner + Key Metrics -->
+      <section class="grid-top">
+        <div class="card ai-banner">
+          <div class="ai-banner-header">
+            <div class="ai-icon"><i data-feather="sparkles"></i></div>
+            <div>
+              <h3>AI Monitoring Active</h3>
+              <p>CivicLens AI is analyzing MPLADS project and expenditure data for unusual patterns.</p>
+            </div>
+          </div>
+          <div class="ai-banner-footer">
+            <span class="status-active"><span class="dot green"></span> System Active</span>
+            <span class="status-alert"><span class="dot red"></span> 342 risk signals detected</span>
+          </div>
+        </div>
+
+        <div class="metrics-container">
+          <div class="card metric-card">
+            <div class="metric-header">
+              <div class="icon-box blue"><i data-feather="credit-card"></i></div>
+              <span class="metric-label">TOTAL ALLOCATED</span>
+            </div>
+            <div class="metric-value">
+              ₹11,681.9 <span class="unit">Cr</span>
+            </div>
+          </div>
+
+          <div class="card metric-card">
+            <div class="metric-header">
+              <div class="icon-box green"><i data-feather="file-text"></i></div>
+              <span class="metric-label">TOTAL EXPENDED</span>
+            </div>
+            <div class="metric-value">
+              ₹3,966.4 <span class="unit">Cr</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Middle Row: Project Status + Risk Snapshot -->
+      <section class="grid-middle">
+        <div class="card status-card">
+          <div class="card-header">
+            <h3>Project Status</h3>
+            <span class="badge">Total: 83,968</span>
+          </div>
+
+          <div class="chart-box">
+            <canvas id="projectChart"></canvas>
+            <div class="chart-overlay">
+              <span class="overlay-sub">COMPLETED</span>
+              <span class="overlay-main">52.2%</span>
+              <span class="overlay-detail">43.8k done</span>
+            </div>
+          </div>
+
+          <div class="breakdown-list">
+            <div class="breakdown-item gray">
+              <div class="item-left">
+                <span class="bullet dark"></span>
+                <div>
+                  <p class="title">Recommended</p>
+                  <p class="sub">Pipeline Total</p>
+                </div>
+              </div>
+              <div class="item-right">
+                <p class="value">83,968</p>
+                <p class="perc">100%</p>
+              </div>
+            </div>
+
+            <div class="breakdown-item green">
+              <div class="item-left">
+                <span class="bullet green"></span>
+                <div>
+                  <p class="title">Complete</p>
+                  <p class="sub">Delivered works</p>
+                </div>
+              </div>
+              <div class="item-right">
+                <p class="value green-text">43,802</p>
+                <p class="perc green-text">52.2%</p>
+              </div>
+            </div>
+
+            <div class="breakdown-item amber">
+              <div class="item-left">
+                <span class="bullet amber"></span>
+                <div>
+                  <p class="title">In Progress</p>
+                  <p class="sub">Under execution</p>
+                </div>
+              </div>
+              <div class="item-right">
+                <p class="value amber-text">40,166</p>
+                <p class="perc amber-text">47.8%</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card risk-card">
+          <div>
+            <div class="card-header-simple">
+              <h3>AI Risk Snapshot</h3>
+              <p>Projects requiring closer attention</p>
+            </div>
+
+            <div class="risk-grid">
+              <div class="risk-box critical">
+                <span class="num">28</span>
+                <span class="label">CRITICAL</span>
+              </div>
+              <div class="risk-box high">
+                <span class="num">94</span>
+                <span class="label">HIGH RISK</span>
+              </div>
+              <div class="risk-box medium">
+                <span class="num">137</span>
+                <span class="label">MEDIUM</span>
+              </div>
+              <div class="risk-box low">
+                <span class="num">83</span>
+                <span class="label">LOW</span>
+              </div>
+            </div>
+
+            <div class="risk-summary">
+              342 total risk signals detected
+            </div>
+          </div>
+
+          <a href="viewrisk.html" class="primary-btn-link">
+            <button class="primary-btn">
+              View AI Risk Center <i data-feather="arrow-right"></i>
+            </button>
+          </a>
+        </div>
+      </section>
+
+      <!-- Bottom Quick Actions -->
+      <section class="card quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-grid">
+          <a href="maps.html" class="action-btn-link"><button class="action-btn">View All States <i data-feather="chevron-right"></i></button></a>
+          <a href="mps.html" class="action-btn-link"><button class="action-btn">Search MPs <i data-feather="chevron-right"></i></button></a>
+          <a href="projects.html" class="action-btn-link"><button class="action-btn">Explore Projects <i data-feather="chevron-right"></i></button></a>
+          <a href="viewrisk.html" class="action-btn-link"><button class="action-btn dark">View AI Risks <i data-feather="chevron-right"></i></button></a>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="internalhack.js"></script>
+</body>
+</html>
