@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicLens AI - State-wise Performance</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --primary: #0f172a;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            width: 100vw;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Symmetric Layout Container */
+        .app-wrapper {
+            width: 100%;
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: 2rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            letter-spacing: -0.02em;
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Perfectly Balanced Top KPI Row */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1.25rem;
+            width: 100%;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem 1rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .kpi-title {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .kpi-value {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.35rem 0 0.15rem 0;
+            line-height: 1.2;
+        }
+
+        .kpi-sub {
+            font-size: 0.73rem;
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Symmetric Search & Controls Bar */
+        .filter-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0.85rem 1.25rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 450px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.65rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            background: #fafafa;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .select-control select {
+            padding: 0.65rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-main);
+            font-size: 0.88rem;
+            font-weight: 500;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .select-control select:focus {
+            border-color: var(--accent);
+        }
+
+        /* Section Title */
+        .section-header {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0.25rem;
+        }
+
+        /* 3-Column Balanced State Cards Grid */
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            width: 100%;
+        }
+
+        .state-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.35rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1.1rem;
+            transition: transform 0.25 ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .state-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent);
+        }
+
+        .state-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .state-title-area {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .state-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #eff6ff;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            border: 1px solid #bfdbfe;
+            flex-shrink: 0;
+        }
+
+        .state-info h3 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1.2;
+        }
+
+        .state-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        .rank-badge {
+            font-size: 0.73rem;
+            font-weight: 600;
+            padding: 0.3rem 0.65rem;
+            background: #f1f5f9;
+            color: var(--text-muted);
+            border-radius: 20px;
+            white-space: nowrap;
+        }
+
+        /* Clean Metrics Grid inside State Card */
+        .state-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            background: #f8fafc;
+            padding: 0.9rem;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .metric-val {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-top: 0.15rem;
+        }
+
+        /* Progress Bar Styling */
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 8px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        /* Action Link */
+        .card-footer {
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .explore-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .explore-btn:hover {
+            color: var(--accent-hover);
+            transform: translateX(3px);
+        }
+
+        /* Responsive Breakpoints for Symmetrical Adaptation */
+        @media (max-width: 1200px) {
+            .kpi-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            .state-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .app-wrapper {
+                padding: 1.25rem;
+            }
+            .kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .state-grid {
+                grid-template-columns: 1fr;
+            }
+            .filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                max-width: 100%;
+            }
+            .filter-controls {
+                justify-content: space-between;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-wrapper">
+        <header class="page-header">
+            <h1>State-wise MPLADS Performance</h1>
+            <p>Comprehensive overview of fund utilization across all states and union territories.</p>
+        </header>
+
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Total States / UTs</div>
+                <div class="kpi-value">36</div>
+                <div class="kpi-sub">Both Houses · LS 2024-29</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Total Allocated</div>
+                <div class="kpi-value">₹11,681.9 CR</div>
+                <div class="kpi-sub">Both Houses · LS 2024-29</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Recorded Exp.</div>
+                <div class="kpi-value">₹3,995.3 CR</div>
+                <div class="kpi-sub">Both Houses · LS 2024-29</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">High Performers</div>
+                <div class="kpi-value" style="color: var(--success);">1</div>
+                <div class="kpi-sub">≥80% utilization</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Average Performers</div>
+                <div class="kpi-value" style="color: var(--warning);">6</div>
+                <div class="kpi-sub">50-79% utilization</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Needs Improvement</div>
+                <div class="kpi-value" style="color: var(--danger);">29</div>
+                <div class="kpi-sub">&lt;50% utilization</div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Filter states and UTs..." onkeyup="filterStates()">
+            </div>
+            <div class="filter-controls">
+                <div class="select-control">
+                    <select id="performanceFilter" onchange="filterStates()">
+                        <option value="all">Performance: All States</option>
+                        <option value="high">High (&ge;80%)</option>
+                        <option value="avg">Average (50-79%)</option>
+                        <option value="low">Needs Improvement (&lt;50%)</option>
+                    </select>
+                </div>
+                <div class="select-control">
+                    <select id="sortFilter" onchange="sortStates()">
+                        <option value="rank">Sort by: Rank</option>
+                        <option value="util">Sort by: Utilization %</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-header">All States & UTs (36)</h2>
+
+        <div class="state-grid" id="stateGrid">
+
+            <div class="state-card" data-name="Nagaland" data-level="high" data-util="82.4" data-rank="1">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">NL</div>
+                            <div class="state-info">
+                                <h3>Nagaland</h3>
+                                <p>1 MP</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #1 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹12.1 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">96</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">72.2%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--success);">82.4%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 82.4%; background: var(--success);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Nagaland" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Sikkim" data-level="avg" data-util="76.1" data-rank="2">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">SK</div>
+                            <div class="state-info">
+                                <h3>Sikkim</h3>
+                                <p>2 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #2 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹29.4 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹22.3 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">123</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">49.6%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">76.1%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 76.1%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Sikkim" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Meghalaya" data-level="avg" data-util="71.5" data-rank="3">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">ML</div>
+                            <div class="state-info">
+                                <h3>Meghalaya</h3>
+                                <p>3 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #3 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹44.1 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹31.5 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">230</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">65.4%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">71.5%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 71.5%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Meghalaya" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Mizoram" data-level="avg" data-util="55.8" data-rank="4">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">MZ</div>
+                            <div class="state-info">
+                                <h3>Mizoram</h3>
+                                <p>2 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #4 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹17.2 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹9.6 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">145</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">58.0%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">55.8%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 55.8%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Mizoram" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Arunachal Pradesh" data-level="avg" data-util="54.2" data-rank="5">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">AR</div>
+                            <div class="state-info">
+                                <h3>Arunachal Pradesh</h3>
+                                <p>3 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #5 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹34.3 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹18.6 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">188</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">52.1%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">54.2%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 54.2%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Arunachal+Pradesh" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Manipur" data-level="avg" data-util="52.0" data-rank="6">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">MN</div>
+                            <div class="state-info">
+                                <h3>Manipur</h3>
+                                <p>3 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #6 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹34.3 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹17.8 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">160</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">48.5%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">52.0%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 52%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Manipur" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Uttar Pradesh" data-level="low" data-util="51.3" data-rank="7">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">UP</div>
+                            <div class="state-info">
+                                <h3>Uttar Pradesh</h3>
+                                <p>110 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #7 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹1,778.3 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹912.4 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">4,210</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">62.0%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">51.3%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 51.3%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Uttar+Pradesh" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Jharkhand" data-level="low" data-util="45.5" data-rank="8">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">JH</div>
+                            <div class="state-info">
+                                <h3>Jharkhand</h3>
+                                <p>19 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #8 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹298.1 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹135.5 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">840</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">44.0%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--danger);">45.5%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 45.5%; background: var(--danger);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Jharkhand" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+            <div class="state-card" data-name="Bihar" data-level="low" data-util="41.2" data-rank="9">
+                <div>
+                    <div class="state-header">
+                        <div class="state-title-area">
+                            <div class="state-icon">BR</div>
+                            <div class="state-info">
+                                <h3>Bihar</h3>
+                                <p>55 MPs</p>
+                            </div>
+                        </div>
+                        <span class="rank-badge">Rank #9 of 36</span>
+                    </div>
+                    <div class="state-metrics" style="margin-top: 0.9rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹851.3 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹350.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works Completed</span><span class="metric-val">1,820</span></div>
+                        <div class="metric-item"><span class="metric-label">Completion Rate</span><span class="metric-val">39.5%</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.9rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--danger);">41.2%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 41.2%; background: var(--danger);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="mps.html?state=Bihar" class="explore-btn">View Details &rarr;</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function filterStates() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const perfVal = document.getElementById('performanceFilter').value;
+            const cards = document.querySelectorAll('.state-card');
+
+            cards.forEach(card => {
+                const name = card.getAttribute('data-name').toLowerCase();
+                const level = card.getAttribute('data-level');
+
+                const matchesSearch = name.includes(searchVal);
+                const matchesPerf = (perfVal === 'all') || (level === perfVal);
+
+                if (matchesSearch && matchesPerf) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function sortStates() {
+            const sortBy = document.getElementById('sortFilter').value;
+            const container = document.getElementById('stateGrid');
+            const cards = Array.from(container.querySelectorAll('.state-card'));
+
+            cards.sort((a, b) => {
+                if (sortBy === 'util') {
+                    return parseFloat(b.getAttribute('data-util')) - parseFloat(a.getAttribute('data-util'));
+                } else {
+                    return parseInt(a.getAttribute('data-rank')) - parseInt(b.getAttribute('data-rank'));
+                }
+            });
+
+            cards.forEach(card => container.appendChild(card));
+        }
+    </script>
+</body>
+</html>
