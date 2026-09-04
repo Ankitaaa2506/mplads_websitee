@@ -155,13 +155,15 @@
 
   <!-- Auto Redirect Script -->
   <!-- Auto Redirect Script -->
+<!-- Auto Redirect Script -->
 <script>
-  if (sessionStorage.getItem("initialized")) {
-      // Agar user pehle se initialize ho chuka hai aur Back aaya hai, toh bypass/back kar do
-      window.location.href = "dashboard.html";
+  // Agar user Dashboard se BACK dabakar yahan aaya hai:
+  if (sessionStorage.getItem("redirected")) {
+      sessionStorage.removeItem("redirected"); // session clean karo
+      window.history.back(); // Chrome ko sidha ek step aur pichhe bhej do
   } else {
-      // Pehli baar aane par session set karo aur 2.8 sec baad normal navigate karo
-      sessionStorage.setItem("initialized", "true");
+      // Pehli baar aane par 2.8s baad Dashboard bhejo
+      sessionStorage.setItem("redirected", "true");
       setTimeout(() => {
           window.location.href = "dashboard.html";
       }, 2800);
