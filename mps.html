@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CivicLens AI - MP Utilization</title>
+    <style>
+        :root {
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --primary: #1e293b;
+            --accent: #2563eb;
+            --accent-hover: #1d4ed8;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            --shadow-hover: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Header Section */
+        .page-header {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .page-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Banner Card */
+        .status-banner {
+            background-color: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .banner-info h2 {
+            font-size: 1.1rem;
+            color: #1e40af;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .banner-info p {
+            color: #3b82f6;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .badge-container {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .badge {
+            background: #ffffff;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid #dbeafe;
+        }
+
+        .badge.danger {
+            color: var(--danger);
+            border-color: #fecaca;
+            background: #fef2f2;
+        }
+
+        /* KPI Cards Grid */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .kpi-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .kpi-title {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .kpi-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 0.4rem 0 0.2rem 0;
+        }
+
+        .kpi-sub {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Filters Section */
+        .filter-bar {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--accent);
+        }
+
+        .filter-controls {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .select-control select {
+            padding: 0.6rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: white;
+            color: var(--text-main);
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Section Header */
+        .section-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        /* MP Cards Grid */
+        .mp-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .mp-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s;
+        }
+
+        .mp-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--accent);
+        }
+
+        .mp-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+
+        .mp-info h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .mp-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* Detailed Metrics Grid */
+        .mp-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.6rem;
+            background: #f8fafc;
+            padding: 0.85rem;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .metric-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .metric-label {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .metric-val {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            height: 8px;
+            width: 100%;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        .status-alert {
+            font-size: 0.75rem;
+            padding: 0.45rem 0.6rem;
+            border-radius: 6px;
+            background: #fffbeb;
+            color: #b45309;
+            border: 1px solid #fde68a;
+        }
+
+        /* Explore Projects Button/Link */
+        .card-footer {
+            margin-top: 0.25rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .explore-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: color 0.2s ease, transform 0.2s ease;
+        }
+
+        .explore-btn:hover {
+            color: var(--accent-hover);
+            transform: translateX(3px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="page-header">
+            <h1>MP Fund Utilization Overview</h1>
+            <p>Browse detailed performance, recommendations, and execution metrics of individual MPs.</p>
+        </header>
+
+        <!-- AI Monitoring Banner -->
+        <div class="status-banner">
+            <div class="banner-info">
+                <h2>AI Monitoring Active</h2>
+                <p>CivicLens AI is analyzing MPLADS project and expenditure data for unusual patterns.</p>
+            </div>
+            <div class="badge-container">
+                <span class="badge danger">342 Risk Signals Detected</span>
+            </div>
+        </div>
+
+        <!-- KPI Grid -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Total MPs</div>
+                <div class="kpi-value">774</div>
+                <div class="kpi-sub">Both Houses · Lok Sabha 2024-29</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Total Allocated</div>
+                <div class="kpi-value">₹11,681.9 Cr</div>
+                <div class="kpi-sub">Current Financial Cycle</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Total Expended</div>
+                <div class="kpi-value">₹3,966.4 Cr</div>
+                <div class="kpi-sub">Recorded Expenditure</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">High Performers</div>
+                <div class="kpi-value" style="color: var(--success);">356</div>
+                <div class="kpi-sub">MPs with ≥ 70% utilization</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-title">Needs Improvement</div>
+                <div class="kpi-value" style="color: var(--danger);">130</div>
+                <div class="kpi-sub">MPs with &lt; 40% utilization</div>
+            </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search MPs, constituencies, or states..." onkeyup="filterCards()">
+            </div>
+            <div class="filter-controls">
+                <div class="select-control">
+                    <select id="levelFilter" onchange="filterCards()">
+                        <option value="all">All Utilization Levels</option>
+                        <option value="high">High (&ge;70%)</option>
+                        <option value="avg">Average (40-69%)</option>
+                        <option value="low">Needs Improvement (&lt;40%)</option>
+                    </select>
+                </div>
+                <div class="select-control">
+                    <select id="houseFilter">
+                        <option value="all">Both Houses</option>
+                        <option value="lok">Lok Sabha</option>
+                        <option value="rajya">Rajya Sabha</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- MP Cards Grid (10 MP Cards with Rich Information) -->
+        <h2 class="section-header">All Members of Parliament (774)</h2>
+        <div class="mp-grid" id="mpGrid">
+
+            <!-- Card 1 -->
+            <div class="mp-card" data-name="Andrew J. Syngkon" data-state="Shillong, Meghalaya" data-level="high">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">AS</div>
+                        <div class="mp-info">
+                            <h3>Andrew J. Syngkon</h3>
+                            <p>Shillong, Meghalaya · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹9.8 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹9.8 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹7.1 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">18 / 22</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Fund Utilization</span><span style="color: var(--success);">100.0%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 100%; background: var(--success);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Andrew+J.+Syngkon" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="mp-card" data-name="Ravindra Dattaram Waikar" data-state="Mumbai North West, Maharashtra" data-level="low">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">RW</div>
+                        <div class="mp-info">
+                            <h3>Ravindra D. Waikar</h3>
+                            <p>Mumbai North West, MH · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹12.0 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹5.4 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">8 / 11</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Fund Utilization</span><span style="color: var(--danger);">36.7%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 36.7%; background: var(--danger);"></div></div>
+                    </div>
+                    <div class="status-alert" style="margin-top: 0.6rem;">⚠️ ₹5.4 CR recorded on ongoing works</div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Ravindra+Dattaram+Waikar" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="mp-card" data-name="S Supongmeren Jamir" data-state="Nagaland" data-level="avg">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">SJ</div>
+                        <div class="mp-info">
+                            <h3>S Supongmeren Jamir</h3>
+                            <p>Nagaland · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹8.2 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">12 / 15</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">56.0%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 56%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=S+Supongmeren+Jamir" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="mp-card" data-name="Anoop Pradhan Balmiki" data-state="Hathras, Uttar Pradesh" data-level="avg">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">AB</div>
+                        <div class="mp-info">
+                            <h3>Anoop P. Balmiki</h3>
+                            <p>Hathras, UP · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹7.1 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">8 / 11</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Expenditure Rate</span><span style="color: var(--warning);">48.3%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 48.3%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Anoop+Pradhan+Balmiki" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="mp-card" data-name="Prof SP Singh Baghel" data-state="Agra, Uttar Pradesh" data-level="high">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">SB</div>
+                        <div class="mp-info">
+                            <h3>Prof SP Singh Baghel</h3>
+                            <p>Agra, UP · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹14.2 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹12.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">210 / 247</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Completion Rate</span><span style="color: var(--success);">85.0%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 85%; background: var(--success);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Prof+SP+Singh+Baghel" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="mp-card" data-name="Shri Bhartruhari Mahtab" data-state="Cuttack, Odisha" data-level="high">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">BM</div>
+                        <div class="mp-info">
+                            <h3>Bhartruhari Mahtab</h3>
+                            <p>Cuttack, Odisha · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹15.0 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹14.5 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹13.1 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">68 / 75</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Completion Rate</span><span style="color: var(--success);">90.6%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 90.6%; background: var(--success);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Bhartruhari+Mahtab" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="mp-card" data-name="Tejasvi Surya" data-state="Bangalore South, Karnataka" data-level="high">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">TS</div>
+                        <div class="mp-info">
+                            <h3>Tejasvi Surya</h3>
+                            <p>Bangalore South, KA · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹13.9 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹11.2 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">42 / 50</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Fund Utilization</span><span style="color: var(--success);">80.5%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 80.5%; background: var(--success);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Tejasvi+Surya" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="mp-card" data-name="Supriya Sule" data-state="Baramati, Maharashtra" data-level="high">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">SS</div>
+                        <div class="mp-info">
+                            <h3>Supriya Sule</h3>
+                            <p>Baramati, MH · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹15.0 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹14.8 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹12.9 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">95 / 102</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Completion Rate</span><span style="color: var(--success);">93.1%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 93.1%; background: var(--success);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Supriya+Sule" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 9 -->
+            <div class="mp-card" data-name="Gaurav Gogoi" data-state="Jorhat, Assam" data-level="avg">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">GG</div>
+                        <div class="mp-info">
+                            <h3>Gaurav Gogoi</h3>
+                            <p>Jorhat, Assam · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹12.5 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹10.5 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹6.5 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">24 / 38</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Fund Utilization</span><span style="color: var(--warning);">61.9%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 61.9%; background: var(--warning);"></div></div>
+                    </div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Gaurav+Gogoi" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+            <!-- Card 10 -->
+            <div class="mp-card" data-name="Kanimozhi Karunanidhi" data-state="Thoothukkudi, Tamil Nadu" data-level="low">
+                <div>
+                    <div class="mp-header">
+                        <div class="avatar">KK</div>
+                        <div class="mp-info">
+                            <h3>Kanimozhi Karunanidhi</h3>
+                            <p>Thoothukkudi, TN · Lok Sabha</p>
+                        </div>
+                    </div>
+                    <div class="mp-metrics" style="margin-top: 0.85rem;">
+                        <div class="metric-item"><span class="metric-label">Allocated</span><span class="metric-val">₹14.7 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Recommended</span><span class="metric-val">₹8.5 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Expended</span><span class="metric-val">₹4.8 CR</span></div>
+                        <div class="metric-item"><span class="metric-label">Works (Done/Rec)</span><span class="metric-val">5 / 19</span></div>
+                    </div>
+                    <div class="progress-container" style="margin-top: 0.85rem;">
+                        <div class="progress-header"><span>Fund Utilization</span><span style="color: var(--danger);">32.6%</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 32.6%; background: var(--danger);"></div></div>
+                    </div>
+                    <div class="status-alert" style="margin-top: 0.6rem;">⚠️ Pending approvals on 14 projects</div>
+                </div>
+                <div class="card-footer">
+                    <a href="projects.html?mp=Kanimozhi+Karunanidhi" class="explore-btn">Explore Projects &rarr;</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Filter JS Script -->
+    <script>
+        function filterCards() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const levelVal = document.getElementById('levelFilter').value;
+            const cards = document.querySelectorAll('.mp-card');
+
+            cards.forEach(card => {
+                const nameAndState = (card.getAttribute('data-name') + " " + card.getAttribute('data-state')).toLowerCase();
+                const level = card.getAttribute('data-level');
+
+                const matchesSearch = nameAndState.includes(searchVal);
+                const matchesLevel = (levelVal === 'all') || (level === levelVal);
+
+                if (matchesSearch && matchesLevel) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>
